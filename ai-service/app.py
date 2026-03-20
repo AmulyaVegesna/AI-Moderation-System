@@ -3,7 +3,14 @@ from flask_cors import CORS
 import random
 import os
 import pickle
+from pymongo import MongoClient
+import os
 
+MONGO_URI = os.getenv("MONGO_URI")
+
+client = MongoClient(MONGO_URI)
+db = client["moderation_db"]
+collection = db["posts"]
 app = Flask(__name__)
 CORS(app)
 # Load model once
@@ -36,11 +43,29 @@ def analyze():
 
     score, category, action = analyze_text(text)
 
-    return jsonify({
-    "score": score,
-    "category": category,
-    "action": action
-})
+    post = {
+        "text": text,
+        "score": score,
+        "category": category,
+        "action": action
+    }
+
+    print("Saving to DB:", post)  # 👈 ADD THIS
+
+    collection.insert_one(post)
+
+    return jsonify(post)
+
+@app.route("/posts", methods=["GET"])
+def get_posts():
+    posts = list(collection.find({}, {"_id": 0}))
+    return jsonify(posts)
+
+@app.route("/delete/<string:text>", methods=["DELETE"])
+def delete_post(text):
+    collection.delete_one({"text": text})
+    return jsonify({"message": "Deleted"})
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5001)))
