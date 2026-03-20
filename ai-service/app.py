@@ -38,23 +38,28 @@ def analyze_text(text):
 
 @app.route("/analyze", methods=["POST"])
 def analyze():
-    data = request.json
-    text = data.get("text")
+    try:
+        data = request.json
+        text = data.get("text")
 
-    score, category, action = analyze_text(text)
+        score, category, action = analyze_text(text)
 
-    post = {
-        "text": text,
-        "score": score,
-        "category": category,
-        "action": action
-    }
+        post = {
+            "text": text,
+            "score": score,
+            "category": category,
+            "action": action
+        }
 
-    print("Saving to DB:", post)  # 👈 ADD THIS
+        print("🔥 Saving to DB:", post)
 
-    collection.insert_one(post)
+        collection.insert_one(post)
 
-    return jsonify(post)
+        return jsonify(post)
+
+    except Exception as e:
+        print("❌ ERROR:", str(e))
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/posts", methods=["GET"])
 def get_posts():
