@@ -1,18 +1,23 @@
 from flask import Flask, request, jsonify
 import random
-from transformers import pipeline
 import os
+import pickle
 
 app = Flask(__name__)
 # Load model once
-classifier = pipeline("sentiment-analysis")
+
+
+model = pickle.load(open("model.pkl", "rb"))
+vectorizer = pickle.load(open("vectorizer.pkl", "rb"))
 
 def analyze_text(text):
-    result = classifier(text)[0]
+    X = vectorizer.transform([text])
+    prediction = model.predict(X)[0]
+    prob = model.predict_proba(X)[0][1]
 
-    score = int(result['score'] * 100)
+    score = int(prob * 100)
 
-    if result['label'] == "NEGATIVE":
+    if prediction == 1:
         category = "toxic"
         action = "Block"
     else:
@@ -34,7 +39,6 @@ def analyze():
     "category": category,
     "action": action
 })
-
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5001)))
