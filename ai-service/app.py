@@ -7,7 +7,12 @@ from pymongo import MongoClient
 import os
 
 MONGO_URI = os.getenv("MONGO_URI")
-print("🔥 MONGO URI:", MONGO_URI)
+
+if not MONGO_URI:
+    print("❌ MONGO_URI NOT FOUND")
+    exit(1)
+
+print("✅ USING MONGO:", MONGO_URI)
 client = MongoClient(MONGO_URI)
 db = client["moderation_db"]
 collection = db["posts"]
