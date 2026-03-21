@@ -56,20 +56,31 @@ def analyze():
             "action": action
         }
 
-        print("🔥 Saving to DB:", post)
+        # 🔥 SAVE TO DB
+        try:
+            collection.insert_one(post)
+            print("✅ Saved to MongoDB:", post)
+        except Exception as db_error:
+            print("❌ DB Insert Error:", db_error)
 
-        collection.insert_one(post)
-
-        return jsonify(post)
+        return jsonify({
+            "score": score,
+            "category": category,
+            "action": action
+        })
 
     except Exception as e:
-        print("❌ ERROR:", str(e))
+        print("❌ ANALYZE ERROR:", e)
         return jsonify({"error": str(e)}), 500
+    
 
 @app.route("/posts", methods=["GET"])
 def get_posts():
-    posts = list(collection.find({}, {"_id": 0}))
-    return jsonify(posts)
+    try:
+        posts = list(collection.find({}, {"_id": 0}))
+        return jsonify(posts)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/delete/<string:text>", methods=["DELETE"])
 def delete_post(text):
