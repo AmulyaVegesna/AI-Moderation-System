@@ -73,7 +73,7 @@ def analyze():
         print("❌ ANALYZE ERROR:", e)
         return jsonify({"error": str(e)}), 500
     
-
+    
 @app.route("/posts", methods=["GET"])
 def get_posts():
     try:
