@@ -115,8 +115,7 @@ AI-Moderation-System/
 │
 ├── frontend/        # React app
 ├── ai-service/      # Flask backend + ML model
-├── model.pkl        # Trained ML model
-├── vectorizer.pkl   # TF-IDF vectorizer
+├── backend/         # Trained ML model + TF-IDF vectorizer
 └── README.md
 ```
 
