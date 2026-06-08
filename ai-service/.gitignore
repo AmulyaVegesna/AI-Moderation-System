@@ -1,0 +1,10 @@
+__pycache__/
+.DS_Store
+.env
+
+*.pyc
+
+data/
+bert_model/
+
+node_modules/
