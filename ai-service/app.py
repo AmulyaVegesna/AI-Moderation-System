@@ -2,9 +2,14 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import random
 import os
-import pickle
 from pymongo import MongoClient
 import os
+import torch
+
+from transformers import (
+    DistilBertTokenizer,
+    DistilBertForSequenceClassification
+)
 
 MONGO_URI = os.getenv("MONGO_URI")
 
@@ -20,16 +25,48 @@ app = Flask(__name__)
 CORS(app)
 # Load model once
 
+print("Loading DistilBERT model...")
 
-model = pickle.load(open("model.pkl", "rb"))
-vectorizer = pickle.load(open("vectorizer.pkl", "rb"))
+tokenizer = DistilBertTokenizer.from_pretrained(
+    "bert_model"
+)
+
+model = DistilBertForSequenceClassification.from_pretrained(
+    "bert_model"
+)
+
+model.eval()
+
+print("DistilBERT loaded successfully")
 
 def analyze_text(text):
-    X = vectorizer.transform([text])
-    prediction = model.predict(X)[0]
-    prob = model.predict_proba(X)[0][1]
 
-    score = int(prob * 100)
+    inputs = tokenizer(
+        text,
+        return_tensors="pt",
+        truncation=True,
+        padding=True,
+        max_length=128
+    )
+
+    with torch.no_grad():
+        outputs = model(**inputs)
+
+    logits = outputs.logits
+
+    prediction = torch.argmax(
+        logits,
+        dim=1
+    ).item()
+
+    probabilities = torch.softmax(
+        logits,
+        dim=1
+    )
+
+    score = int(
+        probabilities.max().item() * 100
+    )
 
     if prediction == 1:
         category = "toxic"

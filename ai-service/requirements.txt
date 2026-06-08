@@ -1,5 +1,11 @@
 flask
-pandas
-scikit-learn
 flask-cors
 pymongo
+certifi
+torch
+transformers
+datasets
+accelerate
+pandas
+scikit-learn
+numpy
