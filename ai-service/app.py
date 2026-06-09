@@ -64,8 +64,8 @@ def analyze_text(text):
         dim=1
     )
 
-    score = int(
-        probabilities.max().item() * 100
+    toxic_score = int(
+        probabilities[0][1].item() * 100
     )
 
     if prediction == 1:
@@ -75,7 +75,7 @@ def analyze_text(text):
         category = "Safe"
         action = "Allow"
 
-    return score, category, action
+    return toxic_score, category, action
 
 
 @app.route("/analyze", methods=["POST"])
